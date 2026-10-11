@@ -1,9 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  <style>body{margin:0;background:#111;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh}</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Dager:ZERO</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body><h1>Игра работает!</h1></body>
+<body>
+  <div id="game"></div>
+  <script src="lib/phaser.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data/characters.js"></script>
+  <script src="js/data/weapons.js"></script>
+  <script src="js/systems/save.js"></script>
+  <script src="js/ui/pixel.js"></script>
+  <script src="js/ui/art.js"></script>
+  <script src="js/ui/ui.js"></script>
+  <script src="js/ui/joystick.js"></script>
+  <script src="js/entities/player.js"></script>
+  <script src="js/scenes/boot.js"></script>
+  <script src="js/scenes/title.js"></script>
+  <script src="js/scenes/lobby.js"></script>
+  <script src="js/scenes/hud.js"></script>
+  <script src="js/main.js"></script>
+</body>
 </html>
