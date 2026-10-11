@@ -16,7 +16,19 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm install
+      - name: Copy Phaser and font into www
+        run: |
+          mkdir -p www/lib www/assets/fonts
+          cp node_modules/phaser/dist/phaser.min.js www/lib/phaser.min.js
+          F=node_modules/@fontsource/press-start-2p/files
+          cp $F/press-start-2p-latin-400-normal.woff2 www/assets/fonts/pixel-latin.woff2 || echo "latin font missing"
+          cp $F/press-start-2p-cyrillic-400-normal.woff2 www/assets/fonts/pixel-cyr.woff2 || echo "cyrillic font missing"
+          ls -la www/lib www/assets/fonts
       - run: npx cap add android
+      - name: Landscape and fullscreen
+        run: |
+          sed -i 's/<activity\b/<activity android:screenOrientation="sensorLandscape"/' android/app/src/main/AndroidManifest.xml
+          sed -i 's#<item name="windowNoTitle">true</item>#&<item name="android:windowFullscreen">true</item>#' android/app/src/main/res/values/styles.xml
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
