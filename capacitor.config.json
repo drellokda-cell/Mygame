@@ -1,5 +1,8 @@
 {
-  "appId": "com.yourname.mygame",
-  "appName": "My Game",
-  "webDir": "www"
+  "appId": "com.yourname.dagerzero",
+  "appName": "Dager:ZERO",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#000000"
+  }
 }
