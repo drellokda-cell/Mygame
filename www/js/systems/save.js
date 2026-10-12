@@ -14,5 +14,7 @@ const Save = {
     try { localStorage.setItem(this.KEY, JSON.stringify(this.data)); } catch (e) {}
   },
   get(k, def) { return this.data[k] === undefined ? def : this.data[k]; },
-  set(k, v) { this.data[k] = v; this.write(); }
+  set(k, v) { this.data[k] = v; this.write(); },
+  // добавить без записи на диск (запись делаем в безопасные моменты)
+  add(k, n) { this.data[k] = (this.data[k] || 0) + n; }
 };
