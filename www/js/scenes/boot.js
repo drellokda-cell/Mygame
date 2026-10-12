@@ -8,6 +8,7 @@ class BootScene extends Phaser.Scene {
       if (started) return;
       started = true;
       Art.build(this);
+      ArtDungeon.build(this);
       this.scene.start('Title');
     };
     const f = document.fonts;
