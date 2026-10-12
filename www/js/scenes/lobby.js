@@ -1,11 +1,12 @@
-// Лобби (дом): жители, ковёр со столом, ворота в подземелье, герой с управлением.
+// Лобби (дом): жители, ковёр со столом, портал в подземелье, герой с управлением.
 class LobbyScene extends Phaser.Scene {
   constructor() { super('Lobby'); }
 
   create() {
     const W = 1792, H = 1024;
-    this.paused = false;
-    this.gateCooldown = false;
+    Run.reset();
+    this.paused = false; this.leaving = false;
+    this.freeAmmo = true; // в лобби энергия не тратится
     this.cameras.main.setBounds(0, 0, W, H);
     this.cameras.main.fadeIn(300);
     this.bounds = new Phaser.Geom.Rectangle(64, 128, W - 128, H - 192);
@@ -18,9 +19,10 @@ class LobbyScene extends Phaser.Scene {
     this.add.tileSprite(W - 64, 0, 64, H, 'wall').setOrigin(0).setDepth(1).setTint(0x8899aa);
     this.add.tileSprite(0, H - 64, W, 64, 'wall').setOrigin(0).setDepth(1).setTint(0x8899aa);
 
-    // Ворота в подземелье
+    // Портал в подземелье
     this.add.image(W / 2, 64, 'gate').setDepth(2);
-    this.gateZone = this.add.zone(W / 2, 150, 150, 50);
+    UI.text(this, W / 2, 150, 'Подземелье', 16, '#9fe8ff', 180).setDepth(3);
+    this.gateZone = this.add.zone(W / 2, 100, 150, 70);
     this.physics.add.existing(this.gateZone);
     this.gateZone.body.setAllowGravity(false);
 
@@ -48,20 +50,20 @@ class LobbyScene extends Phaser.Scene {
     });
 
     // Герой
-    this.hero = new Player(this, cx + 380, 820, Save.get('hero', 'knight'));
-    this.cameras.main.startFollow(this.hero, true, 0.12, 0.12);
-    this.bullets = this.physics.add.group();
-    this.physics.add.collider(this.hero, this.solids);
-    this.physics.add.collider(this.bullets, this.solids, (b) => b.destroy());
-    this.physics.add.overlap(this.hero, this.gateZone, () => {
-      if (this.gateCooldown) return;
-      this.gateCooldown = true;
-      this.hud().toast('Подземелье появится в следующем обновлении');
-      this.time.delayedCall(2500, () => { this.gateCooldown = false; });
+    this.player = new Player(this, cx + 380, 820, Save.get('hero', 'knight'));
+    this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
+    this.pBullets = this.physics.add.group();
+    this.physics.add.collider(this.player, this.solids);
+    this.physics.add.collider(this.pBullets, this.solids, (b) => b.destroy());
+    this.physics.add.overlap(this.player, this.gateZone, () => {
+      if (this.leaving) return;
+      this.leaving = true;
+      Run.reset();
+      this.cameras.main.fadeOut(300);
+      this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Dungeon', { stage: 1 }));
     });
 
     this.scene.launch('HUD', { target: this });
-    this.events.once('shutdown', () => this.scene.stop('HUD'));
   }
 
   hud() { return this.scene.get('HUD'); }
@@ -79,18 +81,18 @@ class LobbyScene extends Phaser.Scene {
 
   setPaused(v) {
     this.paused = v;
-    if (v) { this.physics.pause(); this.hero.setVelocity(0, 0); }
+    if (v) { this.physics.pause(); this.player.setVelocity(0, 0); }
     else this.physics.resume();
   }
 
   update(time) {
-    if (this.paused) return;
+    if (this.paused || this.leaving) return;
     const hud = this.hud();
     if (!hud || !hud.joy) return;
-    this.hero.move(hud.joy.vec);
-    if (hud.attackHeld) this.hero.shoot(this.bullets, time);
-    this.bullets.getChildren().slice().forEach(b => {
+    this.player.move(hud.joy.vec);
+    if (hud.attackHeld) this.player.attack(time);
+    this.pBullets.getChildren().slice().forEach(b => {
       if (!Phaser.Geom.Rectangle.Contains(this.bounds, b.x, b.y)) b.destroy();
     });
   }
-}
+        }
